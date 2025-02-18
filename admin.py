@@ -2,6 +2,8 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, send_file, session
 from functools import wraps
 from werkzeug.security import check_password_hash, generate_password_hash
+import zipfile
+from io import BytesIO
 
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'your-secret-key-here')  # Change in production
@@ -69,6 +71,25 @@ def get_document(user_id, filename):
     if os.path.exists(file_path):
         return send_file(file_path)
     return 'File not found', 404
+
+@app.route('/download-all')
+@login_required
+def download_all():
+    memory_file = BytesIO()
+    with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        for root, dirs, files in os.walk('documents'):
+            for file in files:
+                file_path = os.path.join(root, file)
+                arcname = os.path.relpath(file_path, 'documents')
+                zipf.write(file_path, arcname)
+    
+    memory_file.seek(0)
+    return send_file(
+        memory_file,
+        mimetype='application/zip',
+        as_attachment=True,
+        download_name='all_documents.zip'
+    )
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000, host='0.0.0.0')
