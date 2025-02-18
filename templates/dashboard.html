@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель администратора</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .logout-btn {
+            padding: 8px 16px;
+            background-color: #dc3545;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .document-link {
+            color: #007bff;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+        .document-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Зарегистрированные участники</h1>
+            <a href="{{ url_for('logout') }}" class="logout-btn">Выйти</a>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ФИО</th>
+                    <th>Дата рождения</th>
+                    <th>Адрес</th>
+                    <th>Телефон</th>
+                    <th>Образование</th>
+                    <th>СНИЛС</th>
+                    <th>Документы</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for participant in participants %}
+                <tr>
+                    <td>{{ participant.get('ФИО', '-') }}</td>
+                    <td>{{ participant.get('Дата рождения', '-') }}</td>
+                    <td>{{ participant.get('Адрес', '-') }}</td>
+                    <td>{{ participant.get('Телефон', '-') }}</td>
+                    <td>{{ participant.get('Образование', '-') }}</td>
+                    <td>{{ participant.get('СНИЛС', '-') }}</td>
+                    <td>
+                        <a href="{{ url_for('get_document', user_id=participant.id, filename='passport.jpg') }}" class="document-link" target="_blank">Паспорт</a>
+                        <a href="{{ url_for('get_document', user_id=participant.id, filename='registration.jpg') }}" class="document-link" target="_blank">Прописка</a>
+                        <a href="{{ url_for('get_document', user_id=participant.id, filename='snils.jpg') }}" class="document-link" target="_blank">СНИЛС</a>
+                        <a href="{{ url_for('get_document', user_id=participant.id, filename='education.jpg') }}" class="document-link" target="_blank">Образование</a>
+                        {% if participant.get('education_photo_path_2') %}
+                        <a href="{{ url_for('get_document', user_id=participant.id, filename='education2.jpg') }}" class="document-link" target="_blank">Образование 2</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
